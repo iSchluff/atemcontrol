@@ -1,0 +1,16 @@
+{
+  "name": "midi-mixer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "atem": "^0.1.5",
+    "midi": "^0.9.4",
+    "pi-gpio": "0.0.8"
+  }
+}
