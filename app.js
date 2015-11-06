@@ -44,7 +44,7 @@ var enableKeyboard = function(){
     });
 }
 
-if(config.keyboard)
+if(config.keyboard && process.stdin.setRawMode)
     enableKeyboard();
 
 /* MIDI connection */
