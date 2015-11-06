@@ -129,8 +129,7 @@ exports.led = function(name, track, color, channel){
         console.error("led control not found");
         return null;
     }
-
-    console.log("led control", control);
+    //console.log("led control", control);
 
     var pad = []
     for(var i=0; i<control.count; i++){
