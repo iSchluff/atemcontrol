@@ -95,6 +95,7 @@ var tryMidi = function(){
     var ports = probeMidi(first);
     if(ports.in && ports.out){
         midiStatus.connected = true;
+        log.midi('Connected');
         input.openPort(ports.in);
         output.openPort(ports.out);
     }else{
