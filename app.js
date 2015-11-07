@@ -194,22 +194,15 @@ var connectTally = function(){
             setInterval(connectSocket, 1000);
         }
     })
-    // client.on('data', function(data) {
-    //   console.log(data.toString());
-    //   client.end();
-    // });
+
     atem.events.on('tallyBySource', function(count, sources, tally){
         if(connected){
-            client.write(JSON.stringify({
+            socket.write(JSON.stringify({
                 count: count,
                 sources: sources,
                 tally: tally
             }));
         }
-    });
-    // client.write('world!\r\n');
-    client.on('end', function() {
-      log.tally('disconnected from PI');
     });
 };
 if(config.tallyPi)
