@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "atem": "^0.1.5",
     "midi": "^0.9.4",
     "pi-gpio": "0.0.8"
   }

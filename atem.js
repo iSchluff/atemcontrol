@@ -1,4 +1,4 @@
-var Atem = require('atem');
+var Atem = require('./atemLib');
 var mixer = new Atem();
 var EventEmitter = require('events');
 var events = new EventEmitter();
