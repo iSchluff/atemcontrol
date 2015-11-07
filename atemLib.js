@@ -370,7 +370,6 @@ function Device(atemIpAddress){
 
 			this.serializedCache = this.body.serialize();
 			var packet = Buffer.concat([this.header.serialize(), this.serializedCache]);
-			console.log('-')
 			socket.send(packet, 0, packet.length, 9910, atem.ip, function(err, bytes) {
 				if (err) atem.emit('error', err);
 			});
@@ -405,7 +404,6 @@ function Device(atemIpAddress){
 
 		// If it is a retransmission
 		else {
-			console.log('!')
 			packet = Buffer.concat([this.header.serialize(), this.serializedCache]);
 			socket.send(packet, 0, packet.length, 9910, atem.ip);
 		}
@@ -874,7 +872,6 @@ function Device(atemIpAddress){
 	}
 
 	function messageHandler(msg, rInfo) {
-		console.log('.')
 		const packet = new AtemPacket(msg);
 
 		if (uid == packet.header.uid || packet.isConnect()) {
