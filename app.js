@@ -258,7 +258,7 @@ input.on('message', function(deltaTime, message) {
         return;
     }
 
-    console.log('m:', msg);
+    // console.log('m:', msg);
 
     if(msg.type == 'on'){
         if(msg.name == 'pad1'){
