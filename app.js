@@ -113,6 +113,10 @@ var tryMidi = function(){
     first = false;
 }
 
+input.cancelCallback = function(){
+    console.log("midi cancel", arguments)
+}
+
 process.on('exit', function(code){
     if(midiConnected){
         input.closePort();
