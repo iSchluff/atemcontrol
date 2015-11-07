@@ -181,6 +181,7 @@ var connectTally = function(){
 
     socket.on('connect', function(){
         clearInterval(connectionInterval);
+        log.tally('Connected to PI');
         connected = true;
     })
 
@@ -188,11 +189,13 @@ var connectTally = function(){
         log.tally('Error:', err);
     })
 
+    socket.on('end', function(){
+        log.tally('Disconnected');
+    })
+
     socket.on('close', function(had_error){
-        log.tally('Closed: hadError', had_error);
-        if(!had_error){
-            setInterval(connectSocket, 1000);
-        }
+        clearInterval(connectSocket);
+        setInterval(connectSocket, 1000);
     })
 
     atem.events.on('tallyBySource', function(count, sources, tally){
