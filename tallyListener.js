@@ -45,29 +45,32 @@ process.on('exit', function(code){
     }
 });
 
-
+var connections = 0;
 var server = net.createServer(function(c) { //'connection' listener
     log.net('client connected');
 
-    c.on('data', function(buf){
-        // log.net("recv tally", buf.toString());
-        var str = buf.toString();
-        var data = JSON.parse(str);
-        for (var i = 0; i < Math.min(data.count, GPIO_MAP.length); i++){
-            var src = data.sources[i + 1];
-            var pin = GPIO_MAP[i];
-            if(enabled.indexOf(pin) !== -1){
-                var value = (data.tally[i + 1] & 0x1)
-                console.log("set ", pin, value);
-                gpio.write(pin, value, handleWriteError.bind(pin));
+    // only listen to first connection
+    if(++connections == 1){
+        c.on('data', function(buf){
+            // log.net("recv tally", buf.toString());
+            var str = buf.toString();
+            var data = JSON.parse(str);
+            for (var i = 0; i < Math.min(data.count, GPIO_MAP.length); i++){
+                var src = data.sources[i + 1];
+                var pin = GPIO_MAP[i];
+                if(enabled.indexOf(pin) !== -1){
+                    var value = (data.tally[i + 1] & 0x1)
+                    console.log("set ", pin, value);
+                    gpio.write(pin, value, handleWriteError.bind(pin));
+                }
             }
-        }
-    })
+        })
+    }
 
     c.on('end', function() {
+        connections--;
         log.net('client disconnected');
     });
-    // c.pipe(c);
 });
 server.listen(8124, function() { //'listening' listener
     log.net('server bound');

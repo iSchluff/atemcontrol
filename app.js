@@ -170,21 +170,42 @@ process.on('exit', function(code){
 
 
 var connectTally = function(){
+    var connected = false;
     var net = require('net');
-    var client = net.connect({port: 8124, host: config.tallyPi},
-    function() { //'connect' listener
-      log.tally('connected to PI');
-    });
+    var socket = new net.Socket();
+
+    var connectSocket = function(){
+        socket.connect({port: 8124, host: config.tallyPi});
+    }
+    var connectionInterval = setInterval(connectSocket, 1000);
+
+    socket.on('connect', function(){
+        clearInterval(connectionInterval);
+        connected = true;
+    })
+
+    socket.on('error', function(err){
+        log.tally('Error:', err);
+    })
+
+    socket.on('close', function(had_error){
+        log.tally('Closed: hadError', had_error);
+        if(!had_error){
+            setInterval(connectSocket, 1000);
+        }
+    })
     // client.on('data', function(data) {
     //   console.log(data.toString());
     //   client.end();
     // });
     atem.events.on('tallyBySource', function(count, sources, tally){
-        client.write(JSON.stringify({
-            count: count,
-            sources: sources,
-            tally: tally
-        }));
+        if(connected){
+            client.write(JSON.stringify({
+                count: count,
+                sources: sources,
+                tally: tally
+            }));
+        }
     });
     // client.write('world!\r\n');
     client.on('end', function() {
