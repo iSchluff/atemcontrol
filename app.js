@@ -186,8 +186,9 @@ var connectTally = function(){
         })
 
         socket.on('error', function(err){
-            if(err.code != 'ECONNREFUSED')
-                log.tally('Error:', err);
+            // if(err.code != 'ECONNREFUSED')
+                // log.tally('Error:', err);
+            log.tally('err', err)
         })
 
         socket.on('end', function(){
