@@ -195,6 +195,8 @@ var connectTally = function(){
         })
 
         socket.on('close', function(had_error){
+            if(had_error)
+                socket.destroy();
             clearInterval(connectionInterval);
             connectionInterval = setInterval(connectSocket, 1000);
         })
