@@ -174,10 +174,10 @@ var connectTally = function(){
     var net = require('net');
     var socket;
 
+    var connectionInterval = setInterval(connectSocket, 1000);
     var connectSocket = function(){
         socket = new net.Socket();
         socket.connect({port: 8124, host: config.tallyPi});
-        var connectionInterval = setInterval(connectSocket, 1000);
 
         socket.on('connect', function(){
             clearInterval(connectionInterval);
@@ -186,9 +186,9 @@ var connectTally = function(){
         })
 
         socket.on('error', function(err){
-            // if(err.code != 'ECONNREFUSED')
-                // log.tally('Error:', err);
-            log.tally('err', err)
+            if(err.code != 'ECONNREFUSED')
+                log.tally('Error:', err);
+            // log.tally('err', err)
         })
 
         socket.on('end', function(){
