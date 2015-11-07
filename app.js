@@ -121,7 +121,7 @@ process.on('exit', function(code){
 });
 
 if(config.midi)
-    midiInterval = setInterval(tryMidi, 3000)
+    midiInterval = setInterval(tryMidi, 3000);
 
 /* Raspberry GPIO Tally */
 (function(){
