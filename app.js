@@ -75,9 +75,7 @@ var probeMidi = function(print){
     return ports;
 }
 
-var midiStatus = {
-    connected: false
-}
+var midiConnected = false;
 
 var sendMidiMessage = function(message){
     if(midiStatus.connected)
@@ -91,27 +89,35 @@ var sendMidiMessages = function(messages){
 }
 
 var first = true;
+var midiInterval;
 var tryMidi = function(){
     if(first)
         log.midi('Ports In:', input.getPortCount(), 'Out:', output.getPortCount());
     var ports = probeMidi(first);
     if(ports.in && ports.out){
-        midiStatus.connected = true;
-        log.midi('Connected');
-        input.openPort(ports.in);
-        output.openPort(ports.out);
+        if(!midiConnected){
+            midiConnected = true;
+            log.midi('Connected');
+            input.openPort(ports.in);
+            output.openPort(ports.out);
+        }
     }else{
         if(first)
             log.midi('Launchpad not found, will keep searching for it');
-        setTimeout(tryMidi, 5000);
+
+        if(midiConnected){
+            input.closePort();
+            output.closePort();
+        }
     }
     first = false;
 }
+midiInterval = setInterval(tryMidi, 3000)
 if(config.midi)
     tryMidi();
 
 process.on('exit', function(code){
-    if(midiStatus.connected){
+    if(midiConnected){
         input.closePort();
         output.closePort();
     }
