@@ -231,6 +231,9 @@ function Device(atemIpAddress){
 		 * @type {Number}
 		 */
 		ls = 0,
+		/* store initpackets for later parsing */
+		initPackets = [],
+		initAck = null,
 		/**
 		 * Packets we sent to the ATEM but for which we received no acknowledgement yet.
 		 * @type {UserPacket[]}
@@ -453,12 +456,42 @@ function Device(atemIpAddress){
 			if (state === ConnectionState.establishing){
 				if (msg.length==12 && !this.isConnect()){
 					atem.state = ConnectionState.open;
+					initAck = process.hrtime()
+					setTimeout(function(){
+						console.log('parsing init packets now', initPackets.length)
+						for(var i=0; i<initPackets.length; i++){
+							initPackets[i].parse();
+						}
+						delete initPackets;
+					}, 100);
 					clearInterval(syncInterval);
 					syncInterval = setInterval(sync, 600);
 				}
 			}
 		}
 
+		if(state != ConnectionState.establishing && (this.header.flags & 0x1) || this.isConnect()){
+			if(initAck){
+				var time = process.hrtime(initAck)
+				console.log("first ack after connect", (time[0] * 1e9 + time[1]) / 1000 / 1000)
+				initAck = null;
+			}
+			this.acknowledge()
+		}
+
+		if(msg.length <= 12)
+			return;
+
+		if(atem.state == ConnectionState.open){
+			this.parse(msg);
+		}else{ // parse initial packets later
+			this.msg = msg;
+			initPackets.push(this);
+		}
+	}
+	util.inherits(AtemPacket, Packet);
+	AtemPacket.prototype.parse = function(msg){
+		var msg = msg || this.msg;
 		if (this.isConnect()) {
 			//Do something
 		}
@@ -493,22 +526,25 @@ function Device(atemIpAddress){
 			self.emit('error', err2);
 		}
 	}
-	util.inherits(AtemPacket, Packet);
 	/**
 	 * Send an acknowledgement for this packet to the ATEM
 	 * @memberof AtemPacket
 	 * @method
 	 */
 	AtemPacket.prototype.acknowledge = function(){
-		const self = this;
+		// const self = this;
+		const ackPacket = new UserPacket();
+		ackPacket.header.flags = flags.ack;
+		ackPacket.header.fs = this.header.ls;
+		ackPacket.transmit();
 
-		incomingPackets.push(self);
-		if (state == ConnectionState.attempting)
-			respond();
-		else
-			process.nextTick(respond);
+		//incomingPackets.push(self);
+		//if (state == ConnectionState.attempting)
+		//	respond();
+		//else
+		//	process.nextTick(respond);
 
-		function respond() {
+		/*function respond() {
 			const index = incomingPackets.indexOf(self);
 			if (index != -1) {
 				const ackPacket = new UserPacket();
@@ -517,7 +553,7 @@ function Device(atemIpAddress){
 				ackPacket.transmit();
 				incomingPackets.splice(index, 1);
 			}
-		}
+		}*/
 	};
 	/**
 	 * Marks the corresponding (sync) UserPacket from the {@link Device~pendingPackets the pendingPackets list} as read. <br>
@@ -845,8 +881,8 @@ function Device(atemIpAddress){
 			if (packet.isAck() || packet.isConnect())
 				packet.removePendingPackets();
 
-			if (state!=ConnectionState.establishing && packet.isSync() || packet.isConnect())
-				packet.acknowledge();
+			// if (state!=ConnectionState.establishing && packet.isSync() || packet.isConnect())
+				// packet.acknowledge();
 
 			clearTimeout(communicationTimeout);
 			if (!packet.isConnect()) {

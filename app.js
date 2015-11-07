@@ -7,7 +7,8 @@ var config = {
     atemIP: '10.0.2.9',
     keyboard: true,
     midi: true,
-    gpio: true,
+    gpio: false,
+    tallyPi: '10.0.2.114'
 }
 /*********************/
 
@@ -16,7 +17,8 @@ var config = {
 var log= {
     midi: console.log.bind(this, 'MIDI -'),
     atem: console.log.bind(this, 'ATEM -'),
-    gpio: console.log.bind(this, 'GPIO -')
+    gpio: console.log.bind(this, 'GPIO -'),
+    tally: console.log.bind(this, 'TALLY -')
 };
 
 /* Keyboard Mode */
@@ -165,6 +167,32 @@ process.on('exit', function(code){
         }
     });
 }());
+
+
+var connectTally = function(){
+    var net = require('net');
+    var client = net.connect({port: 8124, host: config.tallyPi},
+    function() { //'connect' listener
+      log.tally('connected to PI');
+    });
+    // client.on('data', function(data) {
+    //   console.log(data.toString());
+    //   client.end();
+    // });
+    atem.events.on('tallyBySource', function(count, sources, tally){
+        client.write(JSON.stringify({
+            count: count,
+            sources: sources,
+            tally: tally
+        }));
+    });
+    // client.write('world!\r\n');
+    client.on('end', function() {
+      log.tally('disconnected from PI');
+    });
+};
+if(config.tallyPi)
+    connectTally();
 
 /* Connect to Atem */
 atem.connect(config.atemIP);
