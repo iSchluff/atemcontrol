@@ -174,7 +174,7 @@ var connectTally = function(){
     var net = require('net');
     var socket;
 
-    var connectionInterval = setInterval(connectSocket, 1000);
+    var connectionInterval;
     var connectSocket = function(){
         socket = new net.Socket();
         socket.connect({port: 8124, host: config.tallyPi});
@@ -201,8 +201,8 @@ var connectTally = function(){
             clearInterval(connectionInterval);
             connectionInterval = setInterval(connectSocket, 1000);
         })
-
     }
+    connectionInterval = setInterval(connectSocket, 1000);
 
     atem.events.on('tallyBySource', function(count, sources, tally){
         if(connected){
