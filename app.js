@@ -50,6 +50,10 @@ if(config.keyboard && process.stdin.setRawMode)
     enableKeyboard();
 
 /* MIDI connection */
+var first = true;
+var midiInterval;
+var midiConnected = false;
+
 var input = new midi.input();
 var output = new midi.output();
 
@@ -75,10 +79,8 @@ var probeMidi = function(print){
     return ports;
 }
 
-var midiConnected = false;
-
 var sendMidiMessage = function(message){
-    if(midiStatus.connected)
+    if(midiConnected)
         output.sendMessage(message);
 }
 
@@ -88,8 +90,6 @@ var sendMidiMessages = function(messages){
     }
 }
 
-var first = true;
-var midiInterval;
 var tryMidi = function(){
     if(first)
         log.midi('Ports In:', input.getPortCount(), 'Out:', output.getPortCount());
@@ -112,9 +112,6 @@ var tryMidi = function(){
     }
     first = false;
 }
-midiInterval = setInterval(tryMidi, 3000)
-if(config.midi)
-    tryMidi();
 
 process.on('exit', function(code){
     if(midiConnected){
@@ -122,6 +119,9 @@ process.on('exit', function(code){
         output.closePort();
     }
 });
+
+if(config.midi)
+    midiInterval = setInterval(tryMidi, 3000)
 
 /* Raspberry GPIO Tally */
 (function(){
