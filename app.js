@@ -172,32 +172,34 @@ process.on('exit', function(code){
 var connectTally = function(){
     var connected = false;
     var net = require('net');
-    var socket = new net.Socket();
+    var socket;
 
     var connectSocket = function(){
+        socket = new net.Socket();
         socket.connect({port: 8124, host: config.tallyPi});
+        var connectionInterval = setInterval(connectSocket, 1000);
+
+        socket.on('connect', function(){
+            clearInterval(connectionInterval);
+            log.tally('Connected to PI');
+            connected = true;
+        })
+
+        socket.on('error', function(err){
+            if(err.code != 'ECONNREFUSED')
+                log.tally('Error:', err);
+        })
+
+        socket.on('end', function(){
+            log.tally('Disconnected');
+        })
+
+        socket.on('close', function(had_error){
+            clearInterval(connectionInterval);
+            connectionInterval = setInterval(connectSocket, 1000);
+        })
+
     }
-    var connectionInterval = setInterval(connectSocket, 1000);
-
-    socket.on('connect', function(){
-        clearInterval(connectionInterval);
-        log.tally('Connected to PI');
-        connected = true;
-    })
-
-    socket.on('error', function(err){
-        if(err.code != 'ECONNREFUSED')
-            log.tally('Error:', err);
-    })
-
-    socket.on('end', function(){
-        log.tally('Disconnected');
-    })
-
-    socket.on('close', function(had_error){
-        clearInterval(connectSocket);
-        setInterval(connectSocket, 1000);
-    })
 
     atem.events.on('tallyBySource', function(count, sources, tally){
         if(connected){
