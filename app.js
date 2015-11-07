@@ -141,7 +141,7 @@ process.on('exit', function(code){
     }
 
     for(var i=0; i < GPIO_MAP.length; i++){
-        gpi.open(GPIO_MAP[i], 'output', markEnabled.bind(this, GPIO_MAP[i]))
+        gpio.open(GPIO_MAP[i], 'output', markEnabled.bind(this, GPIO_MAP[i]))
     }
 
     var handleWriteError = function(pin, err){
@@ -175,8 +175,8 @@ var TALLY_PREVIEW = 2;
 atem.events.on('tallyByIndex', function(count, tally){
     var messages = [];
     for (var i = 0; i<Math.min(count, 8); i++){
-        var pad1col = (tally[i] & TALLY_PREVIEW) ? 'lightGreen' : 'off';
-        var pad2col = (tally[i] & TALLY_PROGRAM) ? 'lightRed' : 'off';
+        var pad1col = (tally[i] & TALLY_PROGRAM) ? 'lightGreen' : 'off';
+        var pad2col = (tally[i] & TALLY_PREVIEW) ? 'lightRed' : 'off';
         // console.log(i, tally[i], 'set 1', pad1col, 'set 2', pad2col)
         messages.push(LaunchControl.led('pad1', i, pad1col, 0));
         messages.push(LaunchControl.led('pad2', i, pad2col, 0));
@@ -212,10 +212,10 @@ input.on('message', function(deltaTime, message) {
 
     if(msg.type == 'on'){
         if(msg.name == 'pad1'){
-            atem.setPreview(msg.track + 1);
+            atem.setProgram(msg.track + 1);
 
         }else if(msg.name == 'pad2'){
-            atem.setProgram(msg.track + 1)
+            atem.setPreview(msg.track + 1)
 
         }else if(msg.name == 'misc' && msg.track == 0){
             atem.toggleTransitionPreview();
