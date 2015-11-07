@@ -175,8 +175,8 @@ var TALLY_PREVIEW = 2;
 atem.events.on('tallyByIndex', function(count, tally){
     var messages = [];
     for (var i = 0; i<Math.min(count, 8); i++){
-        var pad1col = (tally[i] & TALLY_PROGRAM) ? 'lightGreen' : 'off';
-        var pad2col = (tally[i] & TALLY_PREVIEW) ? 'lightRed' : 'off';
+        var pad1col = (tally[i] & TALLY_PROGRAM) ? 'lightRed' : 'off';
+        var pad2col = (tally[i] & TALLY_PREVIEW) ? 'lightGreen' : 'off';
         // console.log(i, tally[i], 'set 1', pad1col, 'set 2', pad2col)
         messages.push(LaunchControl.led('pad1', i, pad1col, 0));
         messages.push(LaunchControl.led('pad2', i, pad2col, 0));
