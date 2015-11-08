@@ -1,16 +1,7 @@
 var midi = require('midi');
 var atem = require('./atem.js');
+var config = require('./config.js');
 var LaunchControl = require('./launchcontrol.js');
-
-/******* Config *******/
-var config = {
-    atemIP: '10.0.2.9',
-    keyboard: true,
-    midi: true,
-    gpio: false,
-    tallyPi: '10.0.2.114'
-}
-/*********************/
 
 // var stdin = process.stdin;
 // require('tty').setRawMode(true);
@@ -124,8 +115,10 @@ process.on('exit', function(code){
     }
 });
 
-if(config.midi)
+if(config.midi){
     midiInterval = setInterval(tryMidi, 3000);
+    tryMidi();
+}
 
 /* Raspberry GPIO Tally */
 (function(){
@@ -197,7 +190,7 @@ var connectTally = function(){
 
         socket.on('error', function(err){
             if(err.code != 'ECONNREFUSED')
-                log.tally('Error:', err);
+                log.tally('Error:', err.code);
             // log.tally('err', err)
         })
 
