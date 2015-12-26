@@ -2,8 +2,7 @@ var log= console.log.bind(console, 'ATEM -');
 var atem = require('./atem.js');
 var controllers = [require('./controllers/kayak.js'), require('./controllers/keyboard.js')];
 
-// var HOST = '192.168.10.240';
-var HOST = '127.0.0.1';
+var HOST = '192.168.10.240';
 
 /* Trigger a response to all controllers */
 var trigger = function () {
@@ -36,6 +35,10 @@ for(var i=0; i<controllers.length; i++){
 
 atem.on('update', function () {
     trigger.apply(null, arguments);
+    sendParent({
+        type: 'update',
+        data: arguments
+    })
 });
 
 atem.on('state', function (state) {
@@ -48,9 +51,24 @@ atem.on('state', function (state) {
     });
 })
 
-sendParent({
-    type: 'init'
-});
+
+/* Setup Child Interface */
+if (process.connected) {
+    log('Child Interface enabled!');
+
+    /* Use Config from Environment */
+    var config = JSON.parse(process.env.config);
+    if(config.host)
+        HOST = config.host;
+
+    process.on('message', function (message) {
+        log('received message', message);
+    });
+
+    process.send({
+        type: 'init'
+    });
+}
 
 /* Connect to Atem */
 atem.connect(HOST);
@@ -60,12 +78,3 @@ process.on('uncaughtException', function (err) {
     console.log('fail', err);
     return true;
 });
-
-
-/* Child Interface */
-if (process.connected) {
-    log('Child Interface enabled!');
-    process.on('message', function (message) {
-        log('received message', message);
-    });
-}
