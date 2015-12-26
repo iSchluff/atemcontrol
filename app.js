@@ -63,6 +63,9 @@ if (process.connected) {
 
     process.on('message', function (message) {
         log('received message', message);
+        if (message.type == 'command'){
+            commandHandler.apply(null, message.data);
+        }
     });
 
     process.send({
