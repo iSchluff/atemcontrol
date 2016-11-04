@@ -81,37 +81,6 @@ process.on('exit', function (code) {
 midiInterval = setInterval(tryMidi, 3000);
 tryMidi();
 
-/* LaunchControl Button Tally */
-var TALLY_PROGRAM = 1;
-var TALLY_PREVIEW = 2;
-atem.events.on('tallyByIndex', function (count, tally) {
-    var messages = [];
-    for (var i = 0; i<Math.min(count, 8); i++){
-        var pad1col = (tally[i] & TALLY_PROGRAM) ? 'lightRed' : 'off';
-        var pad2col = (tally[i] & TALLY_PREVIEW) ? 'lightGreen' : 'off';
-        // console.log(i, tally[i], 'set 1', pad1col, 'set 2', pad2col)
-        messages.push(LaunchControl.led('pad1', i, pad1col, 0));
-        messages.push(LaunchControl.led('pad2', i, pad2col, 0));
-    }
-    sendMidiMessages(messages);
-});
-
-/* Map atem events to launchControl leds */
-atem.events.on('transitionPreview', function (enabled) {
-    var color = enabled ? 'lightAmber'  : 'off'
-    sendMidiMessage(LaunchControl.led('misc', 0, color, 0));
-});
-
-atem.events.on('nextTransitionChange', function (style, map) {
-    var color = LaunchControl.colorWheel[style];
-    // console.log('fargl', style, color, LaunchControl.colorWheel);
-    sendMidiMessages(LaunchControl.led('knob1', 'all', color, 0));
-});
-
-atem.events.on('transitionMixRate', function (value) {
-    var color = LaunchControl.colorWheel[Math.floor(value/250 * LaunchControl.colorWheel.length)]
-});
-
 /* LaunchControl MIDI Handler */
 var transitionReverse = false;
 input.on('message', function (deltaTime, message) {
@@ -157,12 +126,48 @@ input.on('message', function (deltaTime, message) {
             if(val == 10000){
                 transitionReverse = !transitionReverse
             }
-            atem.setTransitionPosition(val);
+            cmd('setTransitionPosition', val/10000 * 0.999);
         }
     }
 });
 
-exports.on= events.on.bind(events);
-exports.trigger= function (name, data) {
+/* LaunchControl Button Tally */
+var TALLY_PROGRAM = 1;
+var TALLY_PREVIEW = 2;
+const atemHandlers = {
+    tallyByIndex: function (count, tally) {
+        var messages = [];
+        for (var i = 0; i<Math.min(count, 8); i++){
+            var pad1col = (tally[i] & TALLY_PROGRAM) ? 'lightRed' : 'off';
+            var pad2col = (tally[i] & TALLY_PREVIEW) ? 'lightGreen' : 'off';
+            // console.log(i, tally[i], 'set 1', pad1col, 'set 2', pad2col)
+            messages.push(LaunchControl.led('pad1', i, pad1col, 0));
+            messages.push(LaunchControl.led('pad2', i, pad2col, 0));
+        }
+        sendMidiMessages(messages);
+    },
 
-};
+    /* Map atem events to launchControl leds */
+    transitionPreview: function (enabled) {
+        var color = enabled ? 'lightAmber'  : 'off'
+        sendMidiMessage(LaunchControl.led('misc', 0, color, 0));
+    },
+
+    nextTransitionChange: function (style, map) {
+        var color = LaunchControl.colorWheel[style];
+        // console.log('fargl', style, color, LaunchControl.colorWheel);
+        sendMidiMessages(LaunchControl.led('knob1', 'all', color, 0));
+    },
+
+    transitionMixRate: function (value) {
+        var color = LaunchControl.colorWheel[Math.floor(value/250 * LaunchControl.colorWheel.length)]
+    }
+}
+
+module.exports = {
+  on: events.on.bind(events),
+  trigger: function(name, ...rest) {
+    if (atemHandlers[name])
+      atemHandlers[name].apply(null, rest);
+  }
+}
