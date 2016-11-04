@@ -1,8 +1,22 @@
-var log= console.log.bind(console, 'ATEM -');
+var log = console.log.bind(console, 'ATEM -');
+var _ = require('underscore');
 var atem = require('./atem.js');
-var controllers = [require('./controllers/kayak.js'), require('./controllers/keyboard.js')];
 
-var HOST = '192.168.10.240';
+var envConfig = {};
+try {
+    envConfig = JSON.parse(process.env.config)
+} catch(foo) {
+    console.log("Running with default config")
+}
+
+var config = _.extend({
+    host: '192.168.10.240',
+    controllers: ['keyboard']
+}, envConfig)
+
+var controllers = config.controllers.map(function(controller) {
+    return require('./controllers/' + controller);
+});
 
 /* Trigger a response to all controllers */
 var trigger = function () {
@@ -56,11 +70,6 @@ atem.on('state', function (state) {
 if (process.connected) {
     log('Child Interface enabled!');
 
-    /* Use Config from Environment */
-    var config = JSON.parse(process.env.config);
-    if(config.host)
-        HOST = config.host;
-
     process.on('message', function (message) {
         log('received message', message);
         if (message.type == 'command'){
@@ -74,7 +83,7 @@ if (process.connected) {
 }
 
 /* Connect to Atem */
-atem.connect(HOST);
+atem.connect(config.host);
 
 process.on('uncaughtException', function (err) {
     // handle errors 'safely' by ignoring them

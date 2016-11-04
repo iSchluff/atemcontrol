@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "midi": "^0.9.4",
-    "pi-gpio": "0.0.8"
+    "pi-gpio": "0.0.8",
+    "underscore": "^1.8.3"
   }
 }
