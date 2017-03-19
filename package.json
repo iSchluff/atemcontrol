@@ -1,13 +1,13 @@
 {
   "name": "atemcontrol",
   "version": "1.0.0",
-  "description": "",
+  "description": "Glue Program with different Interfaces to interact with BMD Atem Switchers.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Anton Schubert <ischluff@mailbox.org>",
+  "license": "Apache-2.0",
   "dependencies": {
     "midi": "^0.9.4",
     "pi-gpio": "0.0.8",
