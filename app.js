@@ -37,14 +37,15 @@ var commandHandler = function (name) {
     }
 }
 
-var sendParent = function(message){
-    if(process.connected)
+var sendParent = function(message) {
+    if (process.connected)
         process.send(message);
 }
 
 /* Listen to controllers */
-for(var i=0; i<controllers.length; i++){
-    controllers[i].on('cmd', commandHandler)
+for (var i = 0; i < controllers.length; i++) {
+    if (controllers[i].on)
+        controllers[i].on('cmd', commandHandler)
 }
 
 atem.on('update', function () {
