@@ -1,3 +1,8 @@
+/*
+ * Novation Launchcontrol API
+ * from https://github.com/mohayonao/launch-control
+ */
+
 const variables = [{
     name: "knob1",
     start: 0x14,

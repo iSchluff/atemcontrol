@@ -1,3 +1,8 @@
+/*
+ * Midi-Controller
+ *
+ * Sends Atem Commands with a Novation LaunchControl XL
+ */
 var EventEmitter = require('events');
 var events = new EventEmitter();
 var midi = require('midi');
