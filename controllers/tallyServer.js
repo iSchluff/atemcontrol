@@ -5,8 +5,6 @@
  */
 var connected = false;
 var net = require('net');
-var EventEmitter = require('events');
-var events = new EventEmitter();
 var log = require('../libs/log.js')('Tally');
 var clients = [];
 var lastState = null;
@@ -47,10 +45,8 @@ const atemHandlers = {
 
 
 module.exports = {
-  on: events.on.bind(events),
   trigger: function(name, ...rest) {
     if (atemHandlers[name])
       atemHandlers[name].apply(null, rest);
   }
 }
-
