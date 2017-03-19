@@ -1,3 +1,8 @@
+/*
+ * Node.js Atem library
+ * Adapted from https://github.com/Dev1an/Atem
+ */
+
 var dgram = require('dgram'),
 	net = require('net'),
 	events = require('events'),
@@ -231,7 +236,10 @@ function Device(atemIpAddress){
 		 * @type {Number}
 		 */
 		ls = 0,
-		/* store initpackets for later parsing */
+		/*
+		 * Stack for initialization-Packets
+		 * Allows them to be parsed after the initial Ack is sent
+		 */
 		initPackets = [],
 		initAck = null,
 		/**
