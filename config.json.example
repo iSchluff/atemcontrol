@@ -1,0 +1,5 @@
+{
+    "host": "192.168.2.10",
+    "switcher": "bmd_atem",
+    "controllers": ["keyboard", "midi_launchcontrol"]
+}

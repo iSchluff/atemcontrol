@@ -9,6 +9,8 @@
   "author": "Anton Schubert <ischluff@mailbox.org>",
   "license": "Apache-2.0",
   "dependencies": {
+    "atem": "^0.1.8",
+    "bluebird": "^3.5.1",
     "midi": "^0.9.4",
     "pi-gpio": "0.0.8",
     "underscore": "^1.8.3"
